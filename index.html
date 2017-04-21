@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="Generator" content="EditPlus®">
+        <meta name="Author" content="">
+        <meta name="Keywords" content="">
+        <meta name="Description" content="">
+        <title>Document</title>
+        <script src="vue/vue.js"></script>
+        <style>
+            a{text-decoration: none;}
+            .pagination{text-align:center;}
+            .pagination span{display: inline-block;height: 30px;line-height: 30px;padding: 0 11px;margin: 0 5px;color: #fff;font-size: 14px;background: #cd4552;cursor:pointer;}
+            .pagination .active{background: #ccc;}
+        </style>
+    </head>
+    <body>
+        
+        <div id="app">
+            <!-- pagination -->
+            <div class="pagination" v-if="lastIndex > 1">
+                <span class="prev" :class="{active: currentPage == 1}" @click="prev">上一页</span>
+                <span v-for="index in indexs" :class="{active: currentPage == index}" @click="pageClick(index)">{{index}}</span>
+                <span class="next" :class="{active: currentPage == lastIndex}" @click="next">下一页</span>
+            </div>
+            <!-- // pagination -->
+            <div v-html="tip"></div>
+        </div>
+
+        <script>
+            var total = 22, // 设置总数
+                pageSize = 3; // 分页大小
+
+            new Vue({
+                el: "#app",
+                data: {
+                    total: total,
+                    numDisplayEntries : 5, //主体页数
+                    currentPage : 1, //指明选中页码
+                    pageSize: pageSize,
+
+                    tip: ''
+                },
+                mounted: function() {
+                    this.getData();
+                },
+                computed: {
+                    indexs: function() {
+                        var _this = this;
+                        var list = [];
+                        var opts = {
+                            total: _this.total,  // 总数
+                            pageSize: _this.pageSize || 10,
+                            currentPage: _this.currentPage || 1,//指明选中页码
+                            numDisplayEntries: _this.numDisplayEntries || 5 //主体页数
+                        } // 参数
+                        var lastIndex = _this.lastIndex; // 最大页码
+                        
+                        var startCount = 1,
+                            endCount = lastIndex;
+                        if(lastIndex > opts.numDisplayEntries) {
+                            
+                            if(opts.currentPage >= opts.numDisplayEntries) {
+                                if(opts.currentPage <= (lastIndex - 1)) {
+                                    startCount = (opts.currentPage + 1 - opts.numDisplayEntries + 1),
+                                    endCount = opts.currentPage + 1;
+                                } else {
+                                
+                                    startCount = (opts.currentPage - opts.numDisplayEntries + 1),
+                                    endCount = opts.currentPage;
+                                }
+                            } else {
+                                startCount = 1,
+                                endCount = opts.numDisplayEntries;
+                            }
+                        }
+
+                        for(var i = startCount;i <= endCount;i++) {
+                                
+                            list.push(i);
+                        }
+
+                        return list;
+                    },
+                     // 最大页码
+                    lastIndex: function() {
+                        var opts = {
+                            total: this.total,  // 总数
+                            pageSize: this.pageSize || 10
+                        } // 参数
+                        return Math.ceil(opts.total/opts.pageSize);
+                    }
+                },
+                methods: {
+                    // 页码点击事件
+                    pageClick: function(index) {
+                        if(index == this.currentPage) return;
+                        this.currentPage = index;
+                        this.getData();
+                    },
+                    // 上一页
+                    prev: function() {
+                        if(this.currentPage > 1) {
+                            this.pageClick(this.currentPage - 1);
+                        }
+                    },
+                    // 下一页
+                    next: function() {
+                        if(this.currentPage < this.lastIndex) {
+                            this.pageClick(this.currentPage + 1);
+                        }
+                    },
+                    // do sth
+                    getData: function() {
+                        this.tip = "数据总数：" + this.total + "<br/>分页大小为：" + this.pageSize + "<br/>总页数为：" + this.lastIndex + "<br/>当前第：" + this.currentPage + "页";
+                    }
+                }
+            });
+        </script>
+    </body>
+</html>
